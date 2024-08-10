@@ -1,0 +1,268 @@
+<%@page  
+import="com.oreilly.servlet.*,java.sql.*,java.lang.*,java.text.SimpleDateFormat,java.util.*,java.i o.*,javax.servlet.*,javax.servlet.http.*" %>  
+<%@ page import="java.sql.*"%>  
+<%@ include file="connect.jsp" %>  
+<%@ page import="java.util.Date" %>  
+<title>User Register</title>  
+<%  
+ArrayList list = new ArrayList();  
+ServletContext context = getServletContext();  
+String dirName =context.getRealPath("Gallery/");  
+String paramname = null;  
+String uname = "", pass = null, email = null, mobile = null, address = null;  
+String dob = null, gender = null, pincode = null, location = null, image = null;  
+File file1 = null;  
+FileInputStream fs = null, fs1 = null; try 
+{  
+MultipartRequest multi = new MultipartRequest(request, dirName, 10 * 1024 * 1024); // 10MB 
+Enumeration params = multi.getParameterNames(); while (params.hasMoreElements()) { paramname = (String) params.nextElement(); if (paramname.equalsIgnoreCase("userid")) { uname = multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("pass")) { pass 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("email")) { email 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("mobile")) { mobile 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("address")) { address 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("dob")) { dob 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("gender")) { gender 
+= multi.getParameter(paramname);  
+}  if (paramname.equalsIgnoreCase("pin")) { pincode 
+= multi.getParameter(paramname);  
+}  
+out.print("UserNmae Already Exists");  
+%>  
+<p><a href="RegisterS.jsp">Back</a>  <a href="index.jsp">Home</a> </p>  
+<%  
+} else {  
+PreparedStatement ps = connection  
+.prepareStatement("INSERT INTO  
+reg(name,pass,email,mobile,addr,dob,gender,pin,location,image,st) values(?,?,?,?,?,?,?,?,?,?,?)  
+");  
+ps.setString(1, uname); ps.setString(2, pass); ps.setString(3, email); ps.setString(4, mobile); ps.setString(5, address); ps.setString(6, dob); ps.setString(7, gender); ps.setString(8, pincode); ps.setString(9, location); ps.setString(11,"Waiting");  
+if (f == 0)  ps.setObject(10, null); else if (f == 1) { fs1 
+= (FileInputStream) list.get(0); ps.setBinaryStream(10, fs1, fs1.available());  } int x = ps.executeUpdate();  
+if (x > 0) { out.print("Registered Successfully!!!!"); String suc="Registered Successfully!!!!"; application.setAttribute("msg",suc); response.sendRedirect("owner.jsp");  
+%>  
+<p><a href="ownerreg.jsp">Back</a> <a href="index.jsp">Home</a></p>  
+<%  
+}  
+}  
+  
+}}}  catch (Exception e) {  
+e.printStackTrace(); out.print(e.getMessage());  
+}  
+%>  
+
+
+
+
+
+
+
+Login:
+ 
+<%@ page isThreadSafe="false" %>  
+<title>Authentication Page</title>  
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-
+8859-1"%>  
+<%@page import="java.util.*"%>  
+<%@ include file="connect.jsp"%>  
+<%  
+String name = request.getParameter("userid"); String pass = request.getParameter("pass");  
+try {  
+String aut = "Authorized";  
+String sql = "SELECT * FROM reg where name='" + name  
++ "' and pass='" + pass + "' and st='" + aut + "' ";  
+Statement stmt = connection.createStatement();  
+ResultSet rs = stmt.executeQuery(sql); String utype = ""; if (rs.next()) { String id=rs.getString(1); application.setAttribute("uename", name); application.setAttribute("id", id); session.setAttribute("name",name); String email=rs.getString(4); session.setAttribute("email",email); System.out.println(name); response.sendRedirect("ownerhome.jsp");  
+} else {  response.sendRedirect("wronglogin.html");  
+}  
+} catch (Exception e) { out.print(e);  e.printStackTrace();  
+}  
+%>  
+Upload :
+ 
+<%@ page import="java.sql.*"%>  
+<%@ page import="databaseconnection.*"%>  
+<%@ page import="java.io.*,java.util.*, javax.servlet.*" %>  
+<%@ page import="javax.servlet.http.*" %>  
+<%@ page import="org.apache.commons.fileupload.*" %>  
+<%@ page import="org.apache.commons.fileupload.disk.*" %>  
+<%@ page import="org.apache.commons.fileupload.servlet.*" %>  
+<%@ page import="org.apache.commons.io.output.*" %>  
+<%  
+String memory=null,used=null,free=null,upload_kbs=null,status1=null; double kilobytes=0, size=0, rem=0; int free1=0,oo2=0; double kb=0; boolean isMultipart = ServletFileUpload.isMultipartContent(request);  
+Connection conn = databasecon.getconnection();  
+Statement stt = conn.createStatement();  
+String email=(String)session.getAttribute("email");  
+String domain_key=request.getParameter("domain_key");  
+String site=request.getParameter("Site");  
+Connection con2 = databasecon.getconnection();  
+Statement st2 = con2.createStatement();  
+String sss2 = "update domain set used='0 kb' where customer_mail='"+email+"' and domain_name='"+site+"'"; int rs2=st2.executeUpdate(sss2); if(rs2>0)  
+System.out.println("ready to update domain");  
+if (!path.exists())  { boolean status = path.mkdirs();  
+}  
+File uploadedFile = new File(path + "/" + fileName);  
+System.out.println("root:"+root); System.out.println("fileName:"+fileName); item.write(uploadedFile); //File file =new File("D:\\ssss.html"); double bytes = uploadedFile.length(); size = (bytes / 
+1024); double megabytes = (kilobytes / 1024); System.out.println("bytes : " + bytes); System.out.println("kilobytes : " + size);  
+try  
+{ 
+Connection con = databasecon.getconnection();  
+Statement st = con.createStatement();  
+String sss = "select memory,used,Status from domain where customer_mail='"+email+"' "; ResultSet rs=st.executeQuery(sss);  if(rs.next())  
+{  memory=rs.getString(1); used=rs.getString(2);  
+}  
+free1=Integer.parseInt(memory);  
+/*  
+Vector v1=new Vector();  
+StringTokenizer str= new StringTokenizer(memory); while(str.hasMoreElements())  
+{ v1.add(str.nextElement());  
+}  
+String o1=v1.get(0).toString(); int oo1=Integer.parseInt(o1);  
+Vector v2=new Vector();  
+StringTokenizer st2= new StringTokenizer(used); while(st2.hasMoreElements())  
+{ v2.add(st2.nextElement()); 
+} 
+String o2=v2.get(0).toString(); oo2=Integer.parseInt(o2);  
+  
+  
+free1=oo1-oo2; free=Integer.toString(free1);  } catch(Exception 
+e)  
+{  
+System.out.println("eeeeeeeeee"+e);  
+} double d = (double) free1;  System.out.println("memory  "+d); System.out.println("size  "+size); if(d>size)  
+{  
+System.out.println(uploadedFile.getAbsolutePath()); item.write(uploadedFile); rem=d-size;  
+System.out.println("rem  "+rem);  
+} else 
+{  response.sendRedirect("create_site.jsp?msg=There is no free memory!"); } 
+String name=(String)session.getAttribute("name");  
+String site_name=(String)session.getAttribute("site_nm"); 
+String status=null,uid=null; try{  
+Connection con = databasecon.getconnection();  
+Statement st = con.createStatement();  
+String sss = "select d.Status,u.id from domain d,reg u where d.customer_mail= u.email && d.customer_mail='"+email+"' "; ResultSet rs=st.executeQuery(sss);  
+if(rs.next())  
+{ status=rs.getString(1); uid=rs.getString(2);  
+}  String sss1 = "update site set  
+file='"+fileName+"',email='"+email+"',username='"+name+"',status='"+status+"',id='"+uid+"' 
+where sitename='"+site_name+"'"; int rs1=st.executeUpdate(sss1); if(rs1<=0)  
+System.out.println("update site");  
+Double kk=oo2+kb;  
+String kkk=Double.toString(kk);  
+String sss11 = "update domain set used='"+size+"',CONTROL='SITE ACTIVATED' where customer_mail='"+email+"'"; int rs11=st.executeUpdate(sss11); if(rs11<=0)  
+System.out.println("update domain");  } catch(Exception 
+e)  
+{  
+System.out.println("upd  :"+e);  
+}  response.sendRedirect("create_site.jsp?msg=Domain Successfully Uploaded");  
+}  
+} }  catch (FileUploadException e)  
+{  
+System.out.println("ERR 1 "+e);  } catch (Exception e)  
+{  
+System.out.println("ERR 2 "+e);  
+} } else{ response.sendRedirect("create_site.jsp?msg=Admin_not_allocated_the _memory"); }  
+%>  
+
+View Files :
+ 
+<%@ page import="java.text.SimpleDateFormat,java.util.*,java.io.*,javax.servlet.*, javax.servlet.http.*" %>  
+<%@ page import = "java.util.Date,java.text.SimpleDateFormat,java.text.ParseException"%> 
+<%@ page import="java.sql.*,databaseconnection.*"%>  
+<%  
+String s2="",s3="",s4="",s5="",s6="",s7="",s8="";  int i=0,j=0;  
+  
+  
+try{  
+Connection con = databasecon.getconnection();  
+Statement st = con.createStatement();  
+String name = (String) session.getAttribute("name");  
+System.out.println("cloudhome:" +name);  
+String sql="SELECT * FROM upload where cloud= '"+name+"' "; ResultSet rs=st.executeQuery(sql); while(rs.next())  
+{ s2=rs.getString("username"); s3=rs.getString("filename"); s4=rs.getString("filetype"); s5=rs.getString("cloud"); session.setAttribute("user",s3); System.out.println("call:" +s3); s6=rs.getString("Key"); s7=rs.getString("date"); s8=rs.getString("count");  
+%>  
+<%  
+} } catch(Exception 
+e)  
+{ out.println(e.getMessage());  
+}  
+%>  
+Search :
+ 
+<%@ page  import="java.sql.*" import="databaseconnection.*"%>  
+<%@ page import="java.io.*,java.util.*, javax.servlet.*" %>  
+<%@ page import="javax.servlet.http.*" %>  
+<%  
+String fname= request.getParameter("filename");  
+//session.setAttribute("key_word", filename);  
+String username=null,date=null,document=null,keyword=null,cloud=null;  try  
+{  
+Connection con4 = databasecon.getconnection();  
+Statement st4 = con4.createStatement();  
+String sss4 = "select * from upload where filename='"+fname+"' ";  
+ResultSet rs4=st4.executeQuery(sss4);  
+if(rs4.next()) 
+{ try  
+{  
+Connection con = databasecon.getconnection();  
+Statement st = con.createStatement();  
+String sss = "select * from upload where filename='"+fname+"' "; ResultSet rs=st.executeQuery(sss); while(rs.next())  
+{  username=rs.getString("username"); session.setAttribute("username", username); fname=rs.getString("filename"); //document=rs.getString("document"); keyword=rs.getString("keyword"); date=rs.getString("date"); cloud =rs.getString("cloud"); session.setAttribute("cloud",cloud); session.setAttribute("fname", fname);  
+  
+%>  
+<%  
+  
+}  
+}  catch(Exception e)  {  
+System.out.println(e);  
+} } else 
+{  
+out.println("<script>alert('NO  SUCH  KEYWORD  MATCH..!')</script>"); //response.sendRedirect("search.jsp");  
+} } catch(Exception e4)  
+{  
+System.out.println(e4);  
+}%>  
+ 
+ 
+ 
+ 
+
+ 
+ 
+Download :
+  
+<%@page import="java.sql.ResultSet"%>  
+<%@page import="java.sql.Statement"%>  
+<%@page import="java.sql.Connection"%>  
+<%@ page import="java.sql.*,java.io.*"  %>  
+<%@page  
+import="com.oreilly.servlet.*,java.sql.*,java.lang.*,databaseconnection.*,java.text.SimpleDateF ormat,java.util.*" %>  
+<%@ page import = "java.util.Date,java.text.SimpleDateFormat,java.text.ParseException"%>  
+<%@page import="java.io.OutputStream"%>  
+<%  
+String fname = (String) session.getAttribute("file");  
+System.out.println(fname);  
+Blob b=null;  
+String getFile = request.getQueryString();  
+Connection con = databasecon.getconnection();  
+Statement st = con.createStatement();  
+ResultSet rs = st.executeQuery("select * from upload where filename = '" + fname + "'");  if (rs.next())  
+{ b = rs.getBlob(1); String document= null; document+=".doc";  byte[] ba = b.getBytes(1, (int)b.length()); response.setContentType("application/txt"); response.setHeader("Content-Disposition", "attachment; filename="+rs.getString(3)); OutputStream os = response.getOutputStream(); os.write(ba); os.close(); ba = null; fname=rs.getString("filename");  
+try{  
+Class.forName("com.mysql.jdbc.Driver"); st=con.createStatement();  
+String sql1="select * from upload where filename='"+fname+"'"; rs=st.executeQuery(sql1); while(rs.next())  
+{ int count=0; try{  
+Class.forName("com.mysql.jdbc.Driver");  
+Connection con2 =  
+DriverManager.getConnection("jdbc:mysql://localhost:3306/search","root","root");  
+PreparedStatement ps=con.prepareStatement("Update upload set count=count+1 where filename='"+fname+"' "); //ps.setInt(1,hit);  
+int x=ps.executeUpdate();  } catch (Exception ex)  
+{ out.println(ex.getMessage());  }}} catch (Exception e){ out.println(e.getMessage());}}%>  
+  
+  
+
+
